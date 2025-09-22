@@ -1,4 +1,4 @@
-# Fremen - A Shai Hulud Malware Detector
+# Sandrider - A Shai Hulud Malware Detector
 
 Detects any instances of the [Shai-Hulud](https://socket.dev/blog/ongoing-supply-chain-attack-targets-crowdstrike-npm-packages) supply chain attack against NPM packages. 
 
