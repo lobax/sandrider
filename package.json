@@ -1,11 +1,11 @@
 {
-  "name": "fremen",
+  "name": "sandrider",
   "version": "1.0.0",
   "description": "Detect the Shai Hulud-worm in NPM packages",
   "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Kristian Alvarez",
+  "license": "BSD"
 }
