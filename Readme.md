@@ -1,4 +1,4 @@
-# Sandrider - A Shai Hulud Malware Detector
+# Sandrider - A Shai-Hulud Malware Detector
 
 Detects any instances of the [Shai-Hulud](https://socket.dev/blog/ongoing-supply-chain-attack-targets-crowdstrike-npm-packages) supply chain attack against NPM packages. 
 
@@ -14,3 +14,7 @@ It recursively scans any provided folder for indicators of compromise, which for
 ## Usage
 - `node index.mjs` - Scans the current working directory for Shai-Hulud
 - `node index.mjs [path]` - Scans [path] for Shai-Hulud
+
+The script can be run as a standalone executable
+- `./index.mjs` - Scans the current working directory for Shai-Hulud
+- `./index.mjs [path]` - Scans [path] for Shai-Hulud

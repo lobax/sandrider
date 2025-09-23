@@ -96,10 +96,10 @@ export const findFilesWithHashes = async (rootPath, fileName, hashes) => {
 function parseResults(results) {
     // We didn't find anything
     if (Array.isArray(results) && results.length === 0) {
-        console.log("🟢 No Evidence of Shai Hulud found 🟢"); 
+        console.log("🟢 No Evidence of Shai-Hulud found 🟢"); 
     }
     else { 
-        console.error('⚠️  Shai Hulud Found! ⚠️ ');
+        console.error('⚠️  Shai-Hulud Found! ⚠️ ');
         console.error('=======================');
         results.forEach(res => { 
             console.error(`☣️  ${res.filePath}`);
