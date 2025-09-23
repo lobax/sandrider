@@ -1,8 +1,8 @@
 import process from 'node:process';
 import { createHash } from 'crypto';
-import { createReadStream } from 'fs';
-import { findFiles } from './src/findFiles.mjs'
+import { fileURLToPath } from 'url';
 import { join } from 'path';
+import { readdirSync, createReadStream } from 'fs';
 
 const shaiHulud = [
     'de0e25a3e6c1e1e5998b306b7141b3dc4c0088da9d7bb47c1c00c91e6e4f85d6',
@@ -14,8 +14,50 @@ const shaiHulud = [
     'b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777',
 ]
 
+/** 
+ * Search for files with a specified name in a directory and its subdirectories
+ * @param {string} baseDir - The directory to search in
+ * @param {string} targetFileName - The filename to search for
+ * @returns {Array<string>} - A list of file paths that match the specified file name
+ */
+export const findFiles = (baseDir, targetFileName) => { 
+    const results = [];
+    const stack = [baseDir]; 
 
-function fileHash(filePath) {
+    while (stack.length > 0) {
+        const currentDir = stack.pop();
+        try { 
+            const entries = readdirSync(currentDir, { withFileTypes: true });
+            for (const entry of entries) { 
+                const path = join(currentDir, entry.name);
+                if (entry.isDirectory()) {
+                    stack.push(path);
+                }
+                else if (entry.isFile() && entry.name === targetFileName) {
+                    results.push(path); 
+                }
+            }
+        } catch (err) {
+            console.error(`Error accessing ${currentDir}:`, err);
+        }
+    }
+
+    return results;
+}
+
+/**
+ * @typedef FileHash
+ * @type {object}
+ * @property {string} filePath - The path of the file.
+ * @property {string} hash - Hash of the file
+ */
+
+/** 
+ * Hash a file 
+ * @param {string} filePath - The path of the file to hash  
+ * @returns {Promise<FileHash>} - A list of file paths that match the specified file name
+ */
+export const fileHash = (filePath) => {
     return new Promise((resolve, reject) => {
         const hash = createHash('sha256');
         const stream = createReadStream(filePath);
@@ -34,6 +76,21 @@ function fileHash(filePath) {
     });
 }
 
+/** 
+ * Find all files with matching hashes 
+ * @param {string} rootPath - The path of the root directory to search
+ * @param {string} fileName - The name of the file to search for 
+ * @param {Array<string>} hashes - The hashes to look for 
+ * @returns {Promise<Array<FileHash>>} - List of files matching the hashes
+ */
+export const findFilesWithHashes = async (rootPath, fileName, hashes) => {
+    const files = findFiles(rootPath, fileName); 
+    const hashPromises = files.map(fileHash);
+    const _hashes = await Promise.all(hashPromises); 
+    const result = _hashes.filter(({file, hash}) => hashes.includes(hash));
+    return result
+}
+
 function parseResults(results) {
     // We didn't find anything
     if (Array.isArray(results) && results.length === 0) {
@@ -47,19 +104,17 @@ function parseResults(results) {
         });
         process.exit(1);
     }
-
 }
 
-(async () => {
-    let rootPath = process.argv.length > 2 ? process.argv[2] : process.cwd(); 
-    console.log(rootPath)
-    try {
-        const bundles = findFiles(rootPath, 'bundle.js'); 
-        const hashPromises = bundles.map(fileHash);
-        const hashes = await Promise.all(hashPromises); 
-        const result = hashes.filter(({file, hash}) => shaiHulud.includes(hash));
-        parseResults(result); 
-    } catch(err) {
-        console.error('Error: ', err);
-    }
-})();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    (async () => {
+        let rootPath = process.argv.length > 2 ? process.argv[2] : process.cwd();
+        console.log(rootPath)
+        try {
+            const result = await findFilesWithHashes(rootPath, 'bundle.js', shaiHulud);
+            parseResults(result);
+        } catch (err) {
+            console.error('Error: ', err);
+        }
+    })();
+}

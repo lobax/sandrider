@@ -3,14 +3,35 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
-import { findFiles } from './findFiles.mjs'
+import { findFiles, findFilesWithHashes } from './index.mjs'
 
 const __filename = fileURLToPath(import.meta.url); 
 const __dirname = join(__filename, '..');
+const baseDir = join(__dirname, 'test_dir');
+
+describe('Find all matching files with a particular hash', (t) => {
+    before(() => setup(baseDir));
+    after(() => cleanup(baseDir));
+
+    it('Should find all target-file.txt with matching hash', async () => { 
+        const hashes = [
+            '852d2584f081863e91399ff453d89a3a0ec89971e3eb5bef130eb6bcfb157709',
+            'fbeea59b3ed41cf6a2b0d2adc1896d0f964ca3a11006d76728ff00c195c6bc79',
+            'a61510216e0fea6547428ce4dae7f2cf50ef4e3c5fa7b67a4a876cdb2316c11f'
+        ];
+        const expectedFiles = [ 
+            join(baseDir, 'target-file.txt'),
+            join(baseDir, 'dir', 'target-file.txt'),
+            join(baseDir, 'dir', 'nested', 'target-file.txt'),
+
+        ];
+        const foundFiles = (await findFilesWithHashes(baseDir, 'target-file.txt', hashes))
+            .map((fileHash) => fileHash.filePath); 
+        assert.deepStrictEqual(foundFiles.sort(), expectedFiles.sort());
+    });
+});
 
 describe('Find all matching files', (t) => {
-    const baseDir = join(__dirname, 'test_dir');
-
     before(() => setup(baseDir));
     after(() => cleanup(baseDir));
 
