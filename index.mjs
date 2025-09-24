@@ -16,6 +16,14 @@ const shaiHulud = [
     'b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777',
 ]
 
+let verbose = false;
+
+function log(message) {
+    if (verbose) {
+        console.log(message);
+    }
+}
+
 /** 
  * Search for files with a specified name in a directory and its subdirectories
  * @param {string} baseDir - The directory to search in
@@ -28,6 +36,7 @@ export const findFiles = (baseDir, targetFileName) => {
 
     while (stack.length > 0) {
         const currentDir = stack.pop();
+        log(`Searching through ${currentDir}...`);
         try { 
             const entries = readdirSync(currentDir, { withFileTypes: true });
             for (const entry of entries) { 
@@ -37,6 +46,7 @@ export const findFiles = (baseDir, targetFileName) => {
                 }
                 else if (entry.isFile() && entry.name === targetFileName) {
                     results.push(path); 
+                    log(`Found ${entry.name}`);
                 }
             }
         } catch (err) {
@@ -87,10 +97,12 @@ export const fileHash = (filePath) => {
  */
 export const findFilesWithHashes = async (rootPath, fileName, hashes) => {
     const files = findFiles(rootPath, fileName); 
+    log(`Files found: ${files}`);
     const hashPromises = files.map(fileHash);
+    log("Calculating hashes...");
     const _hashes = await Promise.all(hashPromises); 
     const result = _hashes.filter(({file, hash}) => hashes.includes(hash));
-    return result
+    return result;
 }
 
 function parseResults(results) {
@@ -108,10 +120,33 @@ function parseResults(results) {
     }
 }
 
+function setVerbosity() {
+    if (process.argv.length > 2 && process.argv[2] === '-v') {
+        verbose = true
+    }
+    else if (process.argv.length > 3 && process.argv[3] === '-v') {
+        verbose = true
+    }
+}
+
+function getRootPath() {
+    if (process.argv.length > 2 && process.argv[2] !== '-v') {
+        return process.argv[2];
+    }
+    else if (process.argv.length > 3 && process.argv[3] !== '-v') {
+        return process.argv[3];
+    }
+    else {
+        return process.cwd();
+    }
+}
+
+// If executed directly (i.e. not a test)
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     (async () => {
-        let rootPath = process.argv.length > 2 ? process.argv[2] : process.cwd();
-        console.log(rootPath)
+        setVerbosity();
+        const rootPath = getRootPath(); 
+        console.log(`Scanning ${rootPath}...`);
         try {
             const result = await findFilesWithHashes(rootPath, 'bundle.js', shaiHulud);
             parseResults(result);
