@@ -7,5 +7,5 @@
     "test": "node --test"
   },
   "author": "Kristian Alvarez",
-  "license": "BSD"
+  "license": "Unlicense"
 }
