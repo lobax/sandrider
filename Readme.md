@@ -3,7 +3,7 @@
 Detects any instances of the [Shai-Hulud](https://socket.dev/blog/ongoing-supply-chain-attack-targets-crowdstrike-npm-packages) supply chain attack against NPM packages. 
 
 It recursively scans any provided folder for clear cut indicators of compromise. The script is meant to be **small**, easily **auditable** and useable in **CI pipelines**.
-Since the attack targets the NPM infrastructure, the script is written in ES6. 
+Since the attack targets the NPM infrastructure, the script is written in ES6. It also uses **no external dependencies**. 
 
 ## Usage
 - `node index.mjs` - Scans the current working directory for Shai-Hulud
