@@ -16,6 +16,10 @@ const shaiHulud = [
     'b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777',
 ]
 
+const sha1Hulud = [
+    'a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a'
+]
+
 let verbose = false;
 
 function log(message) {
@@ -148,7 +152,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         const rootPath = getRootPath(); 
         console.log(`Scanning ${rootPath}...`);
         try {
-            const result = await findFilesWithHashes(rootPath, 'bundle.js', shaiHulud);
+            const shaiResults = await findFilesWithHashes(rootPath, 'bundle.js', shaiHulud);
+            // Nove 24 variant
+            const sha1Results = await findFilesWithHashes(rootPath, 'setup_bun.js', sha1Hulud);
+            const result = shaiResults.concat(sha1Results)
             parseResults(result);
         } catch (err) {
             console.error('Error: ', err);
