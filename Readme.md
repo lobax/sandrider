@@ -35,9 +35,13 @@ dc67467a39b70d1cd4c1f7f7a459b35058163592f4a9e8fb4dffcbba98ef210c
 46faab8ab153fae6e80e7cca38eab363075bb524edd79e42269217a083628f09
 b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777
 ```
- - Any `setup-bun.js` with the following sha256 hashes:
+ - Any `setup_bun.js` with the following sha256 hashes:
 ```
 a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a
+```
+ - Any `bun_environment.js` with the following sha256 hashes:
+```
+62ee164b9b306250c1172583f138c9614139264f889fa99614903c12755468d0
 ```
 
 

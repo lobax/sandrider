@@ -6,19 +6,33 @@ import { fileURLToPath } from 'url';
 import { join } from 'path';
 import { readdirSync, createReadStream } from 'fs';
 
-const shaiHulud = [
-    'de0e25a3e6c1e1e5998b306b7141b3dc4c0088da9d7bb47c1c00c91e6e4f85d6',
-    '81d2a004a1bca6ef87a1caf7d0e0b355ad1764238e40ff6d1b1cb77ad4f595c3',
-    '83a650ce44b2a9854802a7fb4c202877815274c129af49e6c2d1d5d5d55c501e',
-    '4b2399646573bb737c4969563303d8ee2e9ddbd1b271f1ca9e35ea78062538db',
-    'dc67467a39b70d1cd4c1f7f7a459b35058163592f4a9e8fb4dffcbba98ef210c',
-    '46faab8ab153fae6e80e7cca38eab363075bb524edd79e42269217a083628f09',
-    'b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777',
+const compromiseIndicators = [
+    {
+        fileName: "bundle.js",
+        hashes: [
+            'de0e25a3e6c1e1e5998b306b7141b3dc4c0088da9d7bb47c1c00c91e6e4f85d6',
+            '81d2a004a1bca6ef87a1caf7d0e0b355ad1764238e40ff6d1b1cb77ad4f595c3',
+            '83a650ce44b2a9854802a7fb4c202877815274c129af49e6c2d1d5d5d55c501e',
+            '4b2399646573bb737c4969563303d8ee2e9ddbd1b271f1ca9e35ea78062538db',
+            'dc67467a39b70d1cd4c1f7f7a459b35058163592f4a9e8fb4dffcbba98ef210c',
+            '46faab8ab153fae6e80e7cca38eab363075bb524edd79e42269217a083628f09',
+            'b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777',
+        ]
+    },
+    {
+        fileName: "setup_bun.js",
+        hashes: [
+            'a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a'
+        ]
+    },
+    {
+        fileName: "bun_environment.js",
+        hashes: [
+            '62ee164b9b306250c1172583f138c9614139264f889fa99614903c12755468d0'
+        ]
+    },
 ]
 
-const sha1Hulud = [
-    'a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a'
-]
 
 let verbose = false;
 
@@ -151,14 +165,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         setVerbosity();
         const rootPath = getRootPath(); 
         console.log(`Scanning ${rootPath}...`);
-        try {
-            const shaiResults = await findFilesWithHashes(rootPath, 'bundle.js', shaiHulud);
-            // Nove 24 variant
-            const sha1Results = await findFilesWithHashes(rootPath, 'setup_bun.js', sha1Hulud);
-            const result = shaiResults.concat(sha1Results)
-            parseResults(result);
-        } catch (err) {
-            console.error('Error: ', err);
+        let result = [];
+        for (const indicator of compromiseIndicators) {
+            try {
+                let res = await findFilesWithHashes(rootPath, indicator.fileName, indicator.hashes);
+                result = result.concat(res);
+            } catch (err) {
+                console.error('Error: ', err);
+            }
         }
+        parseResults(result);
     })();
 }
